@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>לוח מאורסים</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px 0;
+      background-color: #f4f4f4;
+      font-family: 'David', 'FrankRuehl', serif; /* גופן מתאים למודעות */
+    }
+
+    /* המסגרת של השורה הנעה (לא מסך מלא, רק רצועה) */
+    .ticker-wrapper {
+      width: 100%;
+      height: 220px; /* גובה הרצועה */
+      overflow: hidden;
+      background: #ffffff;
+      border-top: 2px solid #d4af37;
+      border-bottom: 2px solid #d4af37;
+      display: flex;
+      align-items: center;
+      position: relative;
+      direction: ltr; /* כדי שהאנימציה תעבוד חלק */
+    }
+
+    /* המסלול שזז בפועל */
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: scroll-ads 25s linear infinite;
+    }
+
+    /* עצירת התנועה כשעוברים עם העכבר כדי לקרוא */
+    .ticker-wrapper:hover .ticker-track {
+      animation-play-state: paused;
+    }
+
+    /* עיצוב כרטיס מודעה בודד */
+    .ad-card {
+      position: relative;
+      width: 280px;  /* רוחב המודעה בקטן - התאם ליחס של התמונה שלך */
+      height: 190px; /* גובה המודעה בקטן */
+      background-image: url('bg.png');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      margin: 0 15px;
+      flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      border-radius: 6px;
+      direction: rtl;
+    }
+
+    /* מיקום שם החתן ("פלוני") */
+    .groom-name {
+      position: absolute;
+      top: 42%;      /* שנה אחוזים כדי להעלות/להוריד את הטקסט */
+      right: 12%;    /* שנה אחוזים כדי להזיז ימינה/שמאלה */
+      width: 35%;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    /* מיקום שם הכלה ("אלמונית") */
+    .bride-name {
+      position: absolute;
+      top: 42%;      /* שנה אחוזים כדי להעלות/להוריד את הטקסט */
+      left: 12%;     /* שנה אחוזים כדי להזיז ימינה/שמאלה */
+      width: 35%;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    /* הגדרת האנימציה */
+    @keyframes scroll-ads {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- רצועת המודעות הנעה -->
+  <div class="ticker-wrapper">
+    <div class="ticker-track" id="ads-track">
+      <!-- המודעות יוזרקו לכאן אוטומטית על ידי ה-JavaScript -->
+    </div>
+  </div>
+
+  <script>
+    async function loadEngagements() {
+      try {
+        // טעינת קובץ הנתונים
+        const response = await fetch('data.json');
+        const couples = await response.json();
+        const track = document.getElementById('ads-track');
+
+        // פונקציה ליצירת ה-HTML של המודעות
+        const createCardsHTML = (list) => list.map(couple => `
+          <div class="ad-card">
+            <div class="groom-name">${couple.groom}</div>
+            <div class="bride-name">${couple.bride}</div>
+          </div>
+        `).join('');
+
+        // אנו מכפילים את הרשימה פעמיים כדי ליצור גלילה אינסופית חלקה ללא קפיצות
+        const cardsHTML = createCardsHTML(couples);
+        track.innerHTML = cardsHTML + cardsHTML;
+
+      } catch (error) {
+        console.error('שגיאה בטעינת הנתונים:', error);
+      }
+    }
+
+    loadEngagements();
+  </script>
+
+</body>
+</html>
